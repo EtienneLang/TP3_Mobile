@@ -2,6 +2,9 @@ package com.example.a23_tp3_depart.ui.map
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +26,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -41,6 +45,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var locationRequest: LocationRequest
+
+    var modeAjoutPointsInteret = false
 
     // Déclaration pour le callback de la mise à jour de la position de l'utilisateur
     // Le callback est appelé à chaque fois que la position de l'utilisateur change
@@ -74,11 +80,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager
             .findFragmentById(com.example.a23_tp3_depart.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        //todo : clic sur fab
-        // 1. activer la fonction d'ajout de points
-        // 2. régler la couleur du fab
-
+        binding.fab.setOnClickListener {
+            modeAjoutPointsInteret = !modeAjoutPointsInteret
+            if (modeAjoutPointsInteret){
+                binding.fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#00D544"))
+                Toast.makeText(requireActivity(), "Mode ajout de points d'intérêt activé", Toast.LENGTH_SHORT).show()
+            } else {
+                binding.fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#00E8EC"))
+                Toast.makeText(requireActivity(), "Mode ajout de points d'intérêt désactivé", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     /**
@@ -180,10 +191,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         //todo : clic sur carte
         // 2 cas : Mode Ajout de Point et Mode normal
-
+        mMap.setOnMapClickListener { latLng ->
+            // Ici, latLng contient les coordonnées (latitude et longitude) du point où l'utilisateur a cliqué sur la carte.
+            // Vous pouvez effectuer des actions en fonction de l'emplacement du clic, par exemple, placer un marqueur.
+            // Par exemple, pour placer un marqueur :
+            val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
+            mMap.addMarker(markerOptions)
+        }
 
         //todo : placer la barre de zoom
-
+        mMap.uiSettings.isZoomControlsEnabled = true
 
         // Configuration du Layout pour les popups (InfoWindow)
         mMap.setInfoWindowAdapter(object : InfoWindowAdapter {
