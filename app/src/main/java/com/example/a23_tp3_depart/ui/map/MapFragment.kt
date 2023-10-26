@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.example.a23_tp3_depart.databinding.FragmentMapBinding
 import com.google.android.gms.location.*
@@ -195,8 +196,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             // Ici, latLng contient les coordonnées (latitude et longitude) du point où l'utilisateur a cliqué sur la carte.
             // Vous pouvez effectuer des actions en fonction de l'emplacement du clic, par exemple, placer un marqueur.
             // Par exemple, pour placer un marqueur :
-            val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
-            mMap.addMarker(markerOptions)
+
+
+            if (modeAjoutPointsInteret){
+                val fragment = EditLocatDialogFragment()
+                fragment.show(requireActivity().supportFragmentManager , "EditLocationFragment")
+                val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
+                mMap.addMarker(markerOptions)
+            }
+
         }
 
         //todo : placer la barre de zoom

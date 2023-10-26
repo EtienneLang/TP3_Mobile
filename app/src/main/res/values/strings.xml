@@ -10,4 +10,14 @@
     <string name="menu_home">Home</string>
     <string name="menu_map">Map</string>
     <string name="menu_details">Details</string>
+    <string name="creation_marqueur">Nouveau Point d\'Intérêt</string>
+    <string name="categorie">Catégorie : </string>
+    <string name="nom">Nom : </string>
+    <string-array name="liste_categorie">
+        <item>Maison</item>
+        <item>Épicerie</item>
+        <item>Maison d\'un ami</item>
+        <item>École</item>
+        <item>Travail</item>
+    </string-array>
 </resources>
