@@ -19,10 +19,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
+import com.example.a23_tp3_depart.data.LocDao
+import com.example.a23_tp3_depart.data.LocDatabase
 import com.example.a23_tp3_depart.databinding.FragmentMapBinding
+import com.example.a23_tp3_depart.model.Locat
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -55,6 +59,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     var modeAjoutPointsInteret = false
 
+    private lateinit var locDao: LocDao
+    private lateinit var database: LocDatabase
+
+
     // Déclaration pour le callback de la mise à jour de la position de l'utilisateur
     // Le callback est appelé à chaque fois que la position de l'utilisateur change
     private var locationCallback = object : LocationCallback() {
@@ -79,6 +87,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         return root
@@ -86,7 +95,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        database = LocDatabase.getInstance(requireContext())
+        locDao = database.locDao()
         val mapFragment = childFragmentManager
             .findFragmentById(com.example.a23_tp3_depart.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -207,7 +217,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // --> méthode onChanged de l'Observer : afficher les marqueurs sur la carte depuis la liste de tous les points
         // !!! Penser à passer le point courant au marqueur (setTag(Object)) à chaque ajout
         //     Ainsi le point est inclus dans le marqueur et accessible au getInfoContents(Marker)
+        val locationLiveData: LiveData<List<Locat>> = locDao.getAllLocations()
 
+        locationLiveData.observe(viewLifecycleOwner) { locats: List<Locat> ->
+            for (locat in locats) {
+                var location = LatLng(locat.latitude, locat.longitude)
+                val markerOptions = MarkerOptions().position(location).title(locat.nom)
+                mMap.addMarker(markerOptions)
+//                    ?.setTag(locat)
+            }
+        }
 
         //todo : clic sur carte
         // 2 cas : Mode Ajout de Point et Mode normal
