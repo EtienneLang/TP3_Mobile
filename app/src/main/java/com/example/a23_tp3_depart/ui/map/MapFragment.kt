@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +20,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import com.example.a23_tp3_depart.databinding.FragmentMapBinding
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,6 +32,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import java.io.IOException
+import java.util.Locale
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -55,7 +61,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
             userLocation = locationResult.lastLocation!!
-            Log.d("***POSITION***", "onLocationResult: ${userLocation?.latitude} ${userLocation?.longitude}")
+            Log.d(
+                "***POSITION***",
+                "onLocationResult: ${userLocation?.latitude} ${userLocation?.longitude}"
+            )
         }
     }
 
@@ -83,12 +92,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         binding.fab.setOnClickListener {
             modeAjoutPointsInteret = !modeAjoutPointsInteret
-            if (modeAjoutPointsInteret){
+            if (modeAjoutPointsInteret) {
                 binding.fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#00D544"))
-                Toast.makeText(requireActivity(), "Mode ajout de points d'intérêt activé", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireActivity(),
+                    "Mode ajout de points d'intérêt activé",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 binding.fab.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#00E8EC"))
-                Toast.makeText(requireActivity(), "Mode ajout de points d'intérêt désactivé", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireActivity(),
+                    "Mode ajout de points d'intérêt désactivé",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -152,7 +169,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
      */
     private fun enableMyLocation() {
         // vérification si la permission de localisation est déjà donnée
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
             == PackageManager.PERMISSION_GRANTED
         ) {
             if (mMap != null) {
@@ -173,7 +193,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         super.onDestroyView()
         _binding = null
     }
-
 
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -197,10 +216,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             // Vous pouvez effectuer des actions en fonction de l'emplacement du clic, par exemple, placer un marqueur.
             // Par exemple, pour placer un marqueur :
 
-
-            if (modeAjoutPointsInteret){
-                val fragment = EditLocatDialogFragment()
-                fragment.show(requireActivity().supportFragmentManager , "EditLocationFragment")
+            if (modeAjoutPointsInteret) {
+                val location = Location(null)
+                location.latitude = latLng.latitude
+                location.longitude = latLng.longitude
+                //val fragment = EditLocatDialogFragment();
+                val action: NavDirections =
+                    MapFragmentDirections.actionNavMapToEditLocatDialogFragment(
+                        location,
+                        getAddress(latLng).toString()
+                    )
+                Navigation.findNavController(requireView()).navigate(action)
+                //fragment.show(requireActivity().supportFragmentManager , "EditLocationFragment")
                 val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
                 mMap.addMarker(markerOptions)
             }
@@ -217,7 +244,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
 
             override fun getInfoContents(marker: Marker): View {
-                val view: View = LayoutInflater.from(requireActivity()).inflate(com.example.a23_tp3_depart.R.layout.marker_layout, null)
+                val view: View = LayoutInflater.from(requireActivity())
+                    .inflate(com.example.a23_tp3_depart.R.layout.marker_layout, null)
                 // todo : clic sur marqueur
                 // 1. affichage de distance sur le fragment
                 // 2. Déployer le layout de la vue Marker et passer les valeurs du point cliqué afin d'affichage
@@ -225,7 +253,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 return view
             }
         })
-
 
 
         // Active la localisation de l'utilisateur
@@ -300,14 +327,52 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .addOnFailureListener {
                 Log.d("***POSITION***", "onFailure: $it")
                 // Si la configuration n'est pas correcte, on affiche un message
-                Toast.makeText(requireActivity(), "Veuillez activer la localisation", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireActivity(),
+                    "Veuillez activer la localisation",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         /**
          * Fin Localisation
          */
-
-
     }
 
+    private fun getAddress(mLatlng: LatLng): String {
+        // Geocoder
+        val mGeocoder = Geocoder(requireContext(), Locale.getDefault())
+        var chaineAddresse = ""
 
+        // Appel de Geocoder
+        try {
+            val addressList: List<Address> =
+                mGeocoder.getFromLocation(mLatlng.latitude, mLatlng.longitude, 1)!!
+            // renvoie une liste d'adresse
+            if (addressList != null && addressList.isNotEmpty()) {
+                // on ne garde que la première
+                val addresse = addressList[0]
+                val sb = StringBuilder()
+                for (i in 0 until addresse.maxAddressLineIndex) {
+                    sb.append(addresse.getAddressLine(i)).append("\n")
+                    Log.i("***Adresse***", addresse.toString())
+                }
+                Log.i("MAP ADRESSE", addresse.toString())
+
+                // Various Parameters of an Address are appended
+                // to generate a complete Address
+                if (addresse.premises != null)
+                    sb.append(addresse.premises).append(", ")
+
+                sb.append(addresse.subAdminArea).append("\n")
+                sb.append(addresse.locality).append(", ")
+                sb.append(addresse.adminArea).append(", ")
+                sb.append(addresse.countryName).append(", ")
+                sb.append(addresse.postalCode)
+                chaineAddresse = sb.toString()
+            }
+        } catch (e: IOException) {
+            Toast.makeText(requireContext(), "Unable connect to Geocoder", Toast.LENGTH_LONG).show()
+        }
+        return chaineAddresse
+    }
 }
