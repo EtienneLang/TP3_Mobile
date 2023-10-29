@@ -9,10 +9,14 @@ import android.widget.EditText
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.example.a23_tp3_depart.R
 import com.example.a23_tp3_depart.data.LocDao
 import com.example.a23_tp3_depart.data.LocDatabase
 import com.example.a23_tp3_depart.model.Locat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.log
 
 
@@ -20,8 +24,6 @@ class EditLocatDialogFragment(): DialogFragment()  {
     private lateinit var locDat: LocDao
     private lateinit var database: LocDatabase
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-
         val builder = activity?.let { AlertDialog.Builder(it) }
         val inflater = requireActivity().layoutInflater
         val view = inflater.inflate(R.layout.set_location_dialog, null)
@@ -51,7 +53,10 @@ class EditLocatDialogFragment(): DialogFragment()  {
         builder?.setView(view)
             // Gestion des boutons Ok et Annuler
             ?.setPositiveButton("OK") { dialog, id ->
-                locDat.insert(Locat(TvNom.text.toString(), spinner.selectedItem.toString(), adresse, location.latitude, location.longitude ))
+                lifecycleScope.launch {
+                    val locat = Locat(TvNom.text.toString(), spinner.selectedItem.toString(), adresse, location.latitude, location.longitude )
+                    insertLocat(locat)
+                }
                 Log.d("TAG-AJOUTBD", "Ajout d'un point d'intérêt dans la BD")
                 // todo : insertion du nouveau point d'intérêt dans la BD
             }
@@ -64,4 +69,15 @@ class EditLocatDialogFragment(): DialogFragment()  {
         return super.onCreateDialog(savedInstanceState)
     }
 
+    private suspend fun insertLocat(locat: Locat) {
+            withContext(Dispatchers.IO) {
+                val importResult = database.locDao().insert(locat)
+                if (importResult != null) {
+                    Log.d("BD", "insertArticle: $importResult")
+                } else {
+                    Log.d("BD", "FAIL")
+                }
+            }
+
+    }
 }
