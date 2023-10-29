@@ -13,6 +13,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -38,6 +40,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import java.io.IOException
 import java.util.Locale
+
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -223,8 +226,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             for (locat in locats) {
                 var location = LatLng(locat.latitude, locat.longitude)
                 val markerOptions = MarkerOptions().position(location).title(locat.nom)
-                mMap.addMarker(markerOptions)
-//                    ?.setTag(locat)
+                mMap.addMarker(markerOptions)?.setTag(locat)
             }
         }
 
@@ -267,8 +269,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     .inflate(com.example.a23_tp3_depart.R.layout.marker_layout, null)
                 // todo : clic sur marqueur
                 // 1. affichage de distance sur le fragment
-                // 2. Déployer le layout de la vue Marker et passer les valeurs du point cliqué afin d'affichage
 
+
+                // 2. Déployer le layout de la vue Marker et passer les valeurs du point cliqué afin d'affichage
+                val tvNom = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_nom_map)
+                val tvCategorie = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_cat_map)
+                val tvAdresse = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_adr_map)
+                val iv = view.findViewById<ImageView>(com.example.a23_tp3_depart.R.id.iv_photo_map)
+
+                val locat = marker.tag as Locat
+                tvNom.text = marker.title
+                tvCategorie.text = locat.categorie
+                tvAdresse.text = locat.adresse
+                if (tvCategorie.text == "Maison")
+                    iv.setImageResource(com.example.a23_tp3_depart.R.drawable.maison)
+                else if (tvCategorie.text == "Travail")
+                    iv.setImageResource(com.example.a23_tp3_depart.R.drawable.travail)
+                else if (tvCategorie.text == "École")
+                    iv.setImageResource(com.example.a23_tp3_depart.R.drawable.ecole)
                 return view
             }
         })
