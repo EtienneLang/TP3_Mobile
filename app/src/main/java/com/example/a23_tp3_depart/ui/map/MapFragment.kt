@@ -220,6 +220,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // --> méthode onChanged de l'Observer : afficher les marqueurs sur la carte depuis la liste de tous les points
         // !!! Penser à passer le point courant au marqueur (setTag(Object)) à chaque ajout
         //     Ainsi le point est inclus dans le marqueur et accessible au getInfoContents(Marker)
+
+        //ICI NOUS ALLONS DEVOIR UTILISER LE VIEWMODEL POUR QUE CA MARCHE
         val locationLiveData: LiveData<List<Locat>> = locDao.getAllLocations()
 
         locationLiveData.observe(viewLifecycleOwner) { locats: List<Locat> ->
@@ -281,6 +283,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 tvNom.text = marker.title
                 tvCategorie.text = locat.categorie
                 tvAdresse.text = locat.adresse
+                //ON VA DEVOIR AJOUTER LE RESTE DES IMAGES
                 if (tvCategorie.text == "Maison")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.maison)
                 else if (tvCategorie.text == "Travail")
