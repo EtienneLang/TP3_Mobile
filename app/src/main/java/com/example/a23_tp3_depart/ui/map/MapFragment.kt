@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
@@ -65,6 +66,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locDao: LocDao
     private lateinit var database: LocDatabase
 
+    companion object {
+        lateinit var mapViewModel: MapViewModel
+    }
 
     // Déclaration pour le callback de la mise à jour de la position de l'utilisateur
     // Le callback est appelé à chaque fois que la position de l'utilisateur change
@@ -84,7 +88,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val mapViewModel =
+        mapViewModel =
             ViewModelProvider(this).get(MapViewModel::class.java)
 
         _binding = FragmentMapBinding.inflate(inflater, container, false)
@@ -98,8 +102,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        database = LocDatabase.getInstance(requireContext())
-        locDao = database.locDao()
+        mapViewModel.setContext(requireContext())
+//        database = LocDatabase.getInstance(requireContext())
+//        locDao = database.locDao()
         val mapFragment = childFragmentManager
             .findFragmentById(com.example.a23_tp3_depart.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -222,9 +227,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         //     Ainsi le point est inclus dans le marqueur et accessible au getInfoContents(Marker)
 
         //ICI NOUS ALLONS DEVOIR UTILISER LE VIEWMODEL POUR QUE CA MARCHE
-        val locationLiveData: LiveData<List<Locat>> = locDao.getAllLocations()
-
-        locationLiveData.observe(viewLifecycleOwner) { locats: List<Locat> ->
+        Log.d("TAG", mapViewModel.getAllLocations().toString())
+        mapViewModel.getAllLocations().observe(viewLifecycleOwner) { locats ->
             for (locat in locats) {
                 var location = LatLng(locat.latitude, locat.longitude)
                 val markerOptions = MarkerOptions().position(location).title(locat.nom)
@@ -243,7 +247,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 val location = Location(null)
                 location.latitude = latLng.latitude
                 location.longitude = latLng.longitude
-                //val fragment = EditLocatDialogFragment();
                 val action: NavDirections =
                     MapFragmentDirections.actionNavMapToEditLocatDialogFragment(
                         location,
