@@ -56,6 +56,7 @@ class EditLocatDialogFragment() : DialogFragment() {
         // Le paramètre null est nécessaire car le layout est directement lié à la boîte de dialogue et non ancré dans un parent
         builder?.setView(view)
             // Gestion des boutons Ok et Annuler
+            // todo : insertion du nouveau point d'intérêt dans la BD
             ?.setPositiveButton("OK") { dialog, id ->
                 lifecycleScope.launch {
                     val locat = Locat(
@@ -72,7 +73,7 @@ class EditLocatDialogFragment() : DialogFragment() {
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
                     Log.d("TAG", "onViewCreated ")
                 }
-                // todo : insertion du nouveau point d'intérêt dans la BD
+
             }
             ?.setNegativeButton("Annuler") { dialog, id ->
                 getDialog()?.cancel()

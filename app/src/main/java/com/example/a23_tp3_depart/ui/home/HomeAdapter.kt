@@ -1,12 +1,14 @@
 package com.example.a23_tp3_depart.ui.home
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.NavDirections
+import androidx.navigation.Navigation
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a23_tp3_depart.R
@@ -28,8 +30,22 @@ class HomeAdapter : RecyclerView.Adapter<HomeAdapter.NoteHolder>() {
         holder.tvCategorie.text = categorie
         holder.tvNom.setText(currentLocation.nom)
         holder.tvAdresse.setText(currentLocation.adresse)
-        holder.ivLocation.setImageResource(R.drawable.pleinair)
+        if (categorie == "Maison") {
+            holder.ivLocation.setImageResource(R.drawable.maison)
+        }
+        else if (categorie == "Travail") {
+            holder.ivLocation.setImageResource(R.drawable.travail)
+        }
+        else if (categorie == "École") {
+            holder.ivLocation.setImageResource(R.drawable.ecole)
+        }
+        Log.d("TAG", "DANS ADAPTER :" + currentLocation.id)
+        val locationId = currentLocation.id
         holder.itemView.setOnClickListener { v ->
+            val action: NavDirections =
+                HomeFragmentDirections.actionNavHomeToNavDetails(locationId ?: 0)
+            findNavController(v).navigate(action)
+
             //todo : clic sur rangée : Navigation vers le fragment Détail avec Id du point détaillé
         }
     }
@@ -39,9 +55,8 @@ class HomeAdapter : RecyclerView.Adapter<HomeAdapter.NoteHolder>() {
     }
 
     fun setLocations(locations: List<Locat>) {
-        //todo : instancier la liste
-
-        //todo : notifier l'adapteur
+        this.locations = locations
+        notifyDataSetChanged()
     }
 
     inner class NoteHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

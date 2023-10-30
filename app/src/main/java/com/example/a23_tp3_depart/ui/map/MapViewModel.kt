@@ -16,7 +16,6 @@ class MapViewModel : ViewModel() {
     fun setContext(context: Context?) {
         mDb = LocDatabase.getInstance(context!!)
         allLocations = mDb?.locDao()!!.getAllLocations()
-
     }
 
     fun getAllLocations(): LiveData<List<Locat>> {
