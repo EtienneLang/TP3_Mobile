@@ -20,7 +20,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -41,8 +40,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import java.io.IOException
 import java.util.Locale
-
-
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -79,10 +76,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
             userLocation = locationResult.lastLocation!!
-            Log.d(
-                "***POSITION***",
-                "onLocationResult: ${userLocation?.latitude} ${userLocation?.longitude}"
-            )
+            Log.d("***POSITION***", "onLocationResult: ${userLocation?.latitude} ${userLocation?.longitude}")
         }
     }
 
@@ -97,7 +91,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         return root
@@ -106,8 +99,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapViewModel.setContext(requireContext())
-//        database = LocDatabase.getInstance(requireContext())
-//        locDao = database.locDao()
         val mapFragment = childFragmentManager
             .findFragmentById(com.example.a23_tp3_depart.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -149,8 +140,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 // Si la demande est annulée, les tableaux de résultats (grantResults) sont vides.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //todo : Permission accordée. Continuez l'action ou le flux de travail dans l'application.
-
-                    // Si la permission est refusée, on affiche un message d'information
                 } else if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     // Le système décide s'il faut afficher une explication supplémentaire
                     // À nouveau, vérification d'un requis de permission pour cette app
@@ -215,15 +204,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         _binding = null
     }
 
-
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-
         //todo : Vérification des permissions et positionnement si permission OK
         // normalement, ici, la demande de permission a déjà été traitée (onViewCreated)
-
-
 
         //todo : régler le comportement de l'observe sur la liste de points retourné par le view model
         // --> méthode onChanged de l'Observer : afficher les marqueurs sur la carte depuis la liste de tous les points
@@ -244,7 +229,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // 2 cas : Mode Ajout de Point et Mode normal
         mMap.setOnMapClickListener { latLng ->
             // Ici, latLng contient les coordonnées (latitude et longitude) du point où l'utilisateur a cliqué sur la carte.
-            // Vous pouvez effectuer des actions en fonction de l'emplacement du clic, par exemple, placer un marqueur.
             // Par exemple, pour placer un marqueur :
 
             if (modeAjoutPointsInteret) {
@@ -262,7 +246,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
                 markerCamera = mMap.addMarker(markerOptions)!!
             }
-
         }
 
         mMap.uiSettings.isZoomControlsEnabled = true
@@ -276,10 +259,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             override fun getInfoContents(marker: Marker): View {
                 val view: View = LayoutInflater.from(requireActivity())
                     .inflate(com.example.a23_tp3_depart.R.layout.marker_layout, null)
-                // todo : clic sur marqueur
-                // 1. affichage de distance sur le fragment
 
+                // 1. affichage de la distance sur le fragment
                 showDistance(marker)
+
                 // 2. Déployer le layout de la vue Marker et passer les valeurs du point cliqué afin d'affichage
                 val tvNom = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_nom_map)
                 val tvCategorie = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_cat_map)
@@ -290,21 +273,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 tvNom.text = marker.title
                 tvCategorie.text = locat.categorie
                 tvAdresse.text = locat.adresse
-                //ON VA DEVOIR AJOUTER LE RESTE DES IMAGES
+
+                // ON VA DEVOIR AJOUTER LE RESTE DES IMAGES
                 if (tvCategorie.text == "Maison")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.maison)
                 else if (tvCategorie.text == "Travail")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.travail)
                 else if (tvCategorie.text == "École")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.ecole)
+
                 return view
             }
         })
 
-
         // Active la localisation de l'utilisateur
         enableMyLocation()
-
 
         // Vérifie les permissions avant d'utiliser le service fusedLocationClient.getLastLocation()
         // qui permet de connaître la dernière position
@@ -341,7 +324,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11f))
                 }
             }
-
 
         // Configuration pour mise à jour automatique de la position
         locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
