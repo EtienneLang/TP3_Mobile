@@ -66,6 +66,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var locDao: LocDao
     private lateinit var database: LocDatabase
 
+    private lateinit var locationUser: Location
+    private lateinit var markerCamera: Marker
+
     companion object {
         lateinit var mapViewModel: MapViewModel
     }
@@ -221,6 +224,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // normalement, ici, la demande de permission a déjà été traitée (onViewCreated)
 
 
+
         //todo : régler le comportement de l'observe sur la liste de points retourné par le view model
         // --> méthode onChanged de l'Observer : afficher les marqueurs sur la carte depuis la liste de tous les points
         // !!! Penser à passer le point courant au marqueur (setTag(Object)) à chaque ajout
@@ -252,15 +256,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         location,
                         getAddress(latLng).toString()
                     )
+
                 Navigation.findNavController(requireView()).navigate(action)
                 //fragment.show(requireActivity().supportFragmentManager , "EditLocationFragment")
                 val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
-                mMap.addMarker(markerOptions)
+                markerCamera = mMap.addMarker(markerOptions)!!
             }
 
         }
 
-        //todo : placer la barre de zoom
         mMap.uiSettings.isZoomControlsEnabled = true
 
         // Configuration du Layout pour les popups (InfoWindow)
@@ -275,7 +279,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 // todo : clic sur marqueur
                 // 1. affichage de distance sur le fragment
 
-
+                showDistance(marker)
                 // 2. Déployer le layout de la vue Marker et passer les valeurs du point cliqué afin d'affichage
                 val tvNom = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_nom_map)
                 val tvCategorie = view.findViewById<TextView>(com.example.a23_tp3_depart.R.id.tv_cat_map)
@@ -331,9 +335,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     Log.d("***POSITION***", "onSuccess: $location")
                     // Centre la carte sur la position de l'utilisateur au démarrage
                     val latLng = LatLng(location.latitude, location.longitude)
+                    locationUser = Location("LocationUser")
+                    locationUser.latitude = location.latitude
+                    locationUser.longitude = location.longitude
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11f))
                 }
             }
+
 
         // Configuration pour mise à jour automatique de la position
         locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
@@ -417,5 +425,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             Toast.makeText(requireContext(), "Unable connect to Geocoder", Toast.LENGTH_LONG).show()
         }
         return chaineAddresse
+    }
+    private fun showDistance(mMarkerA: Marker) {
+        val markerLoc = Location("MarkerMessage")
+        markerLoc.latitude = mMarkerA.position.latitude
+        markerLoc.longitude = mMarkerA.position.longitude
+        val distance = markerLoc.distanceTo(locationUser!!)
+        Log.d(
+            "MAP DISTANCE",
+            "showDistance: " + distance / 1000 + "km"
+        )
+        Toast.makeText(requireContext(), "Distance: " + distance / 1000 + "km", Toast.LENGTH_LONG).show()
     }
 }

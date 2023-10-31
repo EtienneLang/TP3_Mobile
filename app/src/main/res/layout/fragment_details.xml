@@ -12,8 +12,9 @@
         tools:context=".ui.details.DetailsFragment">
 
         <FrameLayout
-            android:layout_width="600px"
-            android:layout_height="600px">
+            android:id="@+id/bg_image_details"
+            android:layout_width="match_parent"
+            android:layout_height="800px">
 
             <ImageView
                 android:id="@+id/iv_location_bottom"

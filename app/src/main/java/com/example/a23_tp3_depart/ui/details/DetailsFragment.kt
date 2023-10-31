@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.example.a23_tp3_depart.databinding.ActivityMainBinding
 import com.example.a23_tp3_depart.ui.map.EditLocatDialogFragmentArgs
 
 class DetailsFragment : Fragment(), OnMapReadyCallback {
@@ -28,6 +29,10 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
 
     private lateinit var mMap: GoogleMap
+
+    private lateinit var detailViewModel: DetailsViewModel // Replace with your actual ViewModel
+
+    private var currentLocationId: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,49 +56,34 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().title = "Your Fragment Title"
+        //requireActivity().title = "Your Fragment Title"
+
         assert(arguments != null)
-        val currentLocationId = DetailsFragmentArgs.fromBundle(requireArguments()).id
+        currentLocationId = DetailsFragmentArgs.fromBundle(requireArguments()).id
         Log.d("TAG", "DANS DETAILS :" + currentLocationId)
 
-        val viewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
-        viewModel.setContext(requireContext())
+        detailViewModel = ViewModelProvider(this)[DetailsViewModel::class.java]
+        detailViewModel.setContext(requireContext())
 
-        viewModel.getLocatById(currentLocationId).observe(viewLifecycleOwner) { locat ->
+        detailViewModel.getLocatById(currentLocationId).observe(viewLifecycleOwner) { locat ->
             Log.d("TAG", "DANS DETAILS :" + locat.id)
             binding.tvNomDetails.text = locat.nom
             binding.tvAdresseDetails.text = locat.adresse
             binding.tvCategorieDetails.text = locat.categorie
             if (locat.categorie == "Maison") {
                 binding.ivLocationBottom.setImageResource(R.drawable.maison)
-            }
-            else if (locat.categorie == "Travail") {
+                binding.bgImageDetails.setBackgroundColor(resources.getColor(R.color.bg_maison))
+
+            } else if (locat.categorie == "Travail") {
                 binding.ivLocationBottom.setImageResource(R.drawable.travail)
-            }
-            else if (locat.categorie == "École") {
+                binding.bgImageDetails.setBackgroundColor(resources.getColor(R.color.bg_travail))
+
+            } else if (locat.categorie == "École") {
                 binding.ivLocationBottom.setImageResource(R.drawable.ecole)
+                binding.bgImageDetails.setBackgroundColor(resources.getColor(R.color.bg_ecole))
             }
-            val cameraPosition = CameraPosition.Builder()
-                .target(LatLng(locat.latitude, locat.longitude))
-                .zoom(17f)
-                .build()
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-            mMap.addMarker(
-                MarkerOptions()
-                    .position(LatLng(locat.latitude, locat.longitude))
-                    .title(locat.nom)
-            )
         }
-
-        // Use mapFragment as needed
         // todo : titre de fragment dans l'ActionBar
-
-
-        // todo : instanciation correcte de l'id d'élément détaillé
-
-
-        // todo : régler le comportement de l'observe sur le point retourné par le view model
-        // --> méthode onChanged de l'Observer : passer les valeurs du point courant à la View
 
         // todo : get mapFragment
     }
@@ -105,7 +95,17 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap!!
-        // todo : régler le comportement de l'observe sur élément Location retourné par le view model
-        // --> méthode onChanged de l'Observer : affichage correct du marqueur pour ce point
+        detailViewModel.getLocatById(currentLocationId).observe(viewLifecycleOwner) { locat ->
+            val cameraPosition = CameraPosition.Builder()
+                .target(LatLng(locat.latitude, locat.longitude))
+                .zoom(17f)
+                .build()
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            mMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(locat.latitude, locat.longitude))
+                    .title(locat.nom)
+            )
+        }
     }
 }
