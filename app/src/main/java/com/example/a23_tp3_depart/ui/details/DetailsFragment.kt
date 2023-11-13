@@ -85,8 +85,11 @@ class DetailsFragment : Fragment(), OnMapReadyCallback {
                 binding.ivLocationBottom.setImageResource(R.drawable.ecole)
                 binding.bgImageDetails.setBackgroundColor(resources.getColor(R.color.bg_ecole))
             }
+            else if (locat.categorie == "Plein air"){
+                binding.ivLocationBottom.setImageResource(R.drawable.pleinair)
+                binding.bgImageDetails.setBackgroundColor(resources.getColor(R.color.bg_travail))
+            }
             else{
-                //image par défaut... pour ne pas se casser la tête.
                 binding.ivLocationBottom.setImageResource(R.drawable.maison)
                 binding.bgImageDetails.setBackgroundColor(resources.getColor(R.color.bg_maison))
             }

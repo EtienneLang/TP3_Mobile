@@ -15,9 +15,8 @@
     <string name="nom">Nom : </string>
     <string-array name="liste_categorie">
         <item>Maison</item>
-        <item>Épicerie</item>
-        <item>Maison d\'un ami</item>
         <item>École</item>
+        <item>Plein air</item>
         <item>Travail</item>
     </string-array>
 </resources>

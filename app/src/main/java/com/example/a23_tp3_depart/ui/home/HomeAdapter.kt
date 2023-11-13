@@ -39,8 +39,9 @@ class HomeAdapter : RecyclerView.Adapter<HomeAdapter.NoteHolder>() {
         else if (categorie == "École") {
             holder.ivLocation.setImageResource(R.drawable.ecole)
         }
-        else{
-            //L'image de base va être celle de l'école à la place de mettre trop d'images, pas le but du tp.
+        else if (categorie == "Plein air"){
+            holder.ivLocation.setImageResource(R.drawable.pleinair)
+        }else{
             holder.ivLocation.setImageResource(R.drawable.maison)
         }
         Log.d("TAG", "DANS ADAPTER :" + currentLocation.id)

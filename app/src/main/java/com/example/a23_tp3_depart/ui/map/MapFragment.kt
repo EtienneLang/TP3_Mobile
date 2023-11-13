@@ -229,6 +229,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     )
                 Navigation.findNavController(requireView()).navigate(action)
             }
+            else{
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng))
+            }
         }
 
         mMap.uiSettings.isZoomControlsEnabled = true
@@ -257,15 +260,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 tvCategorie.text = locat.categorie
                 tvAdresse.text = locat.adresse
 
-                // ON VA DEVOIR AJOUTER LE RESTE DES IMAGES
                 if (tvCategorie.text == "Maison")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.maison)
                 else if (tvCategorie.text == "Travail")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.travail)
                 else if (tvCategorie.text == "École")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.ecole)
-                else{
-                    //image par défault pour de pas se casser la tête pour rien
+                else if (tvCategorie.text == "Plein air"){
+                    iv.setImageResource(com.example.a23_tp3_depart.R.drawable.pleinair)
+                }
+                else {
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.maison)
                 }
                 return view
