@@ -139,7 +139,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             LOCATION_PERMISSION_CODE -> {
                 // Si la demande est annulée, les tableaux de résultats (grantResults) sont vides.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //todo : Permission accordée. Continuez l'action ou le flux de travail dans l'application.
+                    return
                 } else if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     // Le système décide s'il faut afficher une explication supplémentaire
                     // À nouveau, vérification d'un requis de permission pour cette app
@@ -207,14 +207,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        //todo : Vérification des permissions et positionnement si permission OK
-        // normalement, ici, la demande de permission a déjà été traitée (onViewCreated)
-
-        //todo : régler le comportement de l'observe sur la liste de points retourné par le view model
-        // --> méthode onChanged de l'Observer : afficher les marqueurs sur la carte depuis la liste de tous les points
-        // !!! Penser à passer le point courant au marqueur (setTag(Object)) à chaque ajout
-        //     Ainsi le point est inclus dans le marqueur et accessible au getInfoContents(Marker)
-
         //ICI NOUS ALLONS DEVOIR UTILISER LE VIEWMODEL POUR QUE CA MARCHE
         Log.d("TAG", mapViewModel.getAllLocations().toString())
         mapViewModel.getAllLocations().observe(viewLifecycleOwner) { locats ->
@@ -225,12 +217,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
-        //todo : clic sur carte
-        // 2 cas : Mode Ajout de Point et Mode normal
         mMap.setOnMapClickListener { latLng ->
-            // Ici, latLng contient les coordonnées (latitude et longitude) du point où l'utilisateur a cliqué sur la carte.
-            // Par exemple, pour placer un marqueur :
-
             if (modeAjoutPointsInteret) {
                 val location = Location(null)
                 location.latitude = latLng.latitude
@@ -240,11 +227,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         location,
                         getAddress(latLng).toString()
                     )
-
                 Navigation.findNavController(requireView()).navigate(action)
-                //fragment.show(requireActivity().supportFragmentManager , "EditLocationFragment")
-                val markerOptions = MarkerOptions().position(latLng).title("Nouveau Point")
-                markerCamera = mMap.addMarker(markerOptions)!!
             }
         }
 
@@ -281,7 +264,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.travail)
                 else if (tvCategorie.text == "École")
                     iv.setImageResource(com.example.a23_tp3_depart.R.drawable.ecole)
-
+                else{
+                    //image par défault pour de pas se casser la tête pour rien
+                    iv.setImageResource(com.example.a23_tp3_depart.R.drawable.maison)
+                }
                 return view
             }
         })
@@ -391,8 +377,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 }
                 Log.i("MAP ADRESSE", addresse.toString())
 
-                // Various Parameters of an Address are appended
-                // to generate a complete Address
                 if (addresse.premises != null)
                     sb.append(addresse.premises).append(", ")
 

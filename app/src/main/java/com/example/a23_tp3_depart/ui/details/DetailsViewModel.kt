@@ -16,13 +16,6 @@ class DetailsViewModel : ViewModel() {
     fun setContext(context: Context?) {
         mDb = LocDatabase.getInstance(context!!)
     }
-    // todo : déclaration correcte du point retourné
-
-
-    // todo : Passer contexte et instancier DB et Dao
-
-
-    // todo : 1 méthode pour retourner le point à id défini
 
     // accédé par le fragment
     fun getLocatById(id: Int): LiveData<Locat> {

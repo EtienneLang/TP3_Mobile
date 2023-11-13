@@ -44,13 +44,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // todo : déclaration et instanciation du RecyclerView
-        // todo : configuration
-        // todo : adapteur et passage de l'adapteur au RecyclerView
-
-        // todo : régler le comportement de l'observe sur la liste de points retourné par le view model
-        // --> méthode onChanged de l'Observer : passer la liste à l'adapteur
-
+        // Déclaration du recyclerView et de l'adapteur
         recyclerView = view.findViewById(R.id.rv_location)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = HomeAdapter()

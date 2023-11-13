@@ -39,14 +39,18 @@ class HomeAdapter : RecyclerView.Adapter<HomeAdapter.NoteHolder>() {
         else if (categorie == "École") {
             holder.ivLocation.setImageResource(R.drawable.ecole)
         }
+        else{
+            //L'image de base va être celle de l'école à la place de mettre trop d'images, pas le but du tp.
+            holder.ivLocation.setImageResource(R.drawable.maison)
+        }
         Log.d("TAG", "DANS ADAPTER :" + currentLocation.id)
         val locationId = currentLocation.id
+
+        //Navigation vers les détails d'un point d'intérêt
         holder.itemView.setOnClickListener { v ->
             val action: NavDirections =
                 HomeFragmentDirections.actionNavHomeToNavDetails(locationId ?: 0)
             findNavController(v).navigate(action)
-
-            //todo : clic sur rangée : Navigation vers le fragment Détail avec Id du point détaillé
         }
     }
 
